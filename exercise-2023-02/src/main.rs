@@ -13,13 +13,13 @@ fn extract_number(line: &str, pattern: &str) -> Result<u32, Box<dyn Error>> {
 }
 
 #[derive(Debug)]
-struct Move {
+struct Cube {
     red: u32,
     green: u32,
     blue: u32,
 }
 
-impl Move {
+impl Cube {
     fn new(red: u32, green: u32, blue: u32) -> Self {
         Self { red, green, blue }
     }
@@ -32,15 +32,15 @@ impl Move {
         Ok(Self { red, green, blue })
     }
 
-    fn check(&self, maximum: &Move) -> bool {
-        self.blue <= maximum.blue && self.red <= maximum.red && self.green <= maximum.green
+    fn smaller_than(&self, cube: &Cube) -> bool {
+        self.blue <= cube.blue && self.red <= cube.red && self.green <= cube.green
     }
 }
 
 #[derive(Debug)]
 struct Game {
     number: u32,
-    moves: Vec<Move>,
+    cubes: Vec<Cube>,
 }
 
 impl Game {
@@ -48,22 +48,30 @@ impl Game {
         let number = extract_number(record, r"Game (\d+)")?;
         let moves = record
             .split(';')
-            .map(|single_move| Move::new_from_record(single_move))
+            .map(|single_move| Cube::new_from_record(single_move))
             .collect::<Result<Vec<_>, _>>()?;
 
-        Ok(Self { number, moves })
+        Ok(Self { number, cubes: moves })
     }
 
-    fn check(&self, maximum: &Move) -> bool {
-        self.moves.iter().all(|m| m.check(maximum))
+    fn smaller_than(&self, cube: &Cube) -> bool {
+        self.cubes.iter().all(|m| m.smaller_than(cube))
+    }
+
+    fn minimum_cubes(&self) -> Option<Cube> {
+        let red = self.cubes.iter().map(|cube| cube.red).max()?;
+        let green = self.cubes.iter().map(|cube| cube.green).max()?;
+        let blue = self.cubes.iter().map(|cube| cube.blue).max()?;
+
+        Some(Cube{red, green, blue})
     }
 }
 
 fn main() {
-    let maximum_move = Move::new(12, 13, 14);
+    let maximum_cube = Cube::new(12, 13, 14);
     let input = fs::read_to_string("input.txt").unwrap();
 
     let games = input.lines().filter_map(|line| Game::new(line).ok());
-    let sum: u32 = games.filter(|game| game.check(&maximum_move)).map(|game| game.number).sum();
+    let sum: u32 = games.filter(|game| game.smaller_than(&maximum_cube)).map(|game| game.number).sum();
     println!("Sum: {sum}");
 }
