@@ -35,6 +35,10 @@ impl Cube {
     fn smaller_than(&self, cube: &Cube) -> bool {
         self.blue <= cube.blue && self.red <= cube.red && self.green <= cube.green
     }
+
+    fn power(&self) -> u32 {
+        self.blue * self.red * self.green
+    }
 }
 
 #[derive(Debug)]
@@ -46,24 +50,24 @@ struct Game {
 impl Game {
     fn new(record: &str) -> Result<Self, Box<dyn Error>> {
         let number = extract_number(record, r"Game (\d+)")?;
-        let moves = record
+        let cubes = record
             .split(';')
             .map(|single_move| Cube::new_from_record(single_move))
             .collect::<Result<Vec<_>, _>>()?;
 
-        Ok(Self { number, cubes: moves })
+        Ok(Self { number, cubes })
     }
 
     fn smaller_than(&self, cube: &Cube) -> bool {
         self.cubes.iter().all(|m| m.smaller_than(cube))
     }
 
-    fn minimum_cubes(&self) -> Option<Cube> {
+    fn minimum_cube(&self) -> Option<Cube> {
         let red = self.cubes.iter().map(|cube| cube.red).max()?;
         let green = self.cubes.iter().map(|cube| cube.green).max()?;
         let blue = self.cubes.iter().map(|cube| cube.blue).max()?;
 
-        Some(Cube{red, green, blue})
+        Some(Cube { red, green, blue })
     }
 }
 
@@ -72,6 +76,17 @@ fn main() {
     let input = fs::read_to_string("input.txt").unwrap();
 
     let games = input.lines().filter_map(|line| Game::new(line).ok());
-    let sum: u32 = games.filter(|game| game.smaller_than(&maximum_cube)).map(|game| game.number).sum();
+
+    let sum: u32 = games
+        .clone()
+        .filter(|game| game.smaller_than(&maximum_cube))
+        .map(|game| game.number)
+        .sum();
     println!("Sum: {sum}");
+
+    let power: u32 = games
+        .filter_map(|game| game.minimum_cube())
+        .map(|cube| cube.power())
+        .sum();
+    println!("Power: {power}");
 }
