@@ -1,4 +1,5 @@
 use regex::Regex;
+use std::error::Error;
 use std::{collections::HashMap, fs};
 
 struct Symbol {
@@ -40,17 +41,22 @@ fn validate_rectangle(
     None
 }
 
-fn generate_vector(text: &str) -> Vec<(Symbol, u32)> {
-    let re: Regex = Regex::new(r"\d+").unwrap();
-    let length = text.lines().next().unwrap().len();
+fn generate_vector(text: &str) -> Result<Vec<(Symbol, u32)>, Box<dyn Error>> {
+    let re: Regex = Regex::new(r"\d+")?;
+    let length = text
+        .lines()
+        .next()
+        .ok_or_else(|| "failed to extract first line")?
+        .len();
     let lines = text.lines().collect();
 
-    re.find_iter(text)
+    Ok(re
+        .find_iter(text)
         .filter_map(|number| {
             validate_rectangle(&lines, number.start(), number.end(), length)
                 .map(|symbol| (symbol, number.as_str().parse::<u32>().unwrap()))
         })
-        .collect::<Vec<_>>()
+        .collect::<Vec<_>>())
 }
 
 fn calculate_sum(parts: &[(Symbol, u32)]) -> u32 {
@@ -79,9 +85,10 @@ fn calculate_product(parts: &[(Symbol, u32)]) -> u32 {
 
 fn main() {
     let input = fs::read_to_string("input.txt").unwrap();
-    let symbols_vector = generate_vector(&input);
-    let sum: u32 = calculate_sum(&symbols_vector);
-    println!("Sum: {}", sum);
-    let sum: u32 = calculate_product(&symbols_vector);
-    println!("Product: {}", sum);
+    if let Ok(symbols_vector) = generate_vector(&input) {
+        let sum: u32 = calculate_sum(&symbols_vector);
+        println!("Sum: {}", sum);
+        let sum: u32 = calculate_product(&symbols_vector);
+        println!("Product: {}", sum);
+    }
 }
