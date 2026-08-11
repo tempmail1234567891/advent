@@ -50,9 +50,9 @@ fn generate_vector(text: &str) -> Vec<(Symbol, u32)> {
     let lines = text.lines().collect();
 
     re.find_iter(text)
-        .filter_map(|caps| {
-            if let Some(symbol) = validate_rectangle(&lines, caps.start(), caps.end(), length) {
-                Some((symbol, caps.as_str().parse::<u32>().unwrap()))
+        .filter_map(|number| {
+            if let Some(symbol) = validate_rectangle(&lines, number.start(), number.end(), length) {
+                Some((symbol, number.as_str().parse::<u32>().unwrap()))
             } else {
                 None
             }
