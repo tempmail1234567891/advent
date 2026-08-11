@@ -1,7 +1,7 @@
 use std::error::Error;
 
 use super::cube;
-
+use super::utils;
 
 #[derive(Debug)]
 pub struct Game {
@@ -11,7 +11,7 @@ pub struct Game {
 
 impl Game {
     pub fn new(record: &str) -> Result<Self, Box<dyn Error>> {
-        let number = cube::extract_number(record, r"Game (\d+)")?;
+        let number = utils::extract_number(record, r"Game (\d+)")?;
         let cubes = record
             .split(';')
             .map(|single_move| cube::Cube::new_from_record(single_move))
