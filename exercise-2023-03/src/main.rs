@@ -1,16 +1,20 @@
 use regex::Regex;
 use std::fs;
 
-fn extract_rectangle(text: &str, start: usize, end: usize, length: usize) -> String {
+fn extract_rectangle(lines: &Vec<&str>, start: usize, end: usize, length: usize) -> String {
     let mut rectangle = String::new();
-    if length <= start {
-        rectangle += &text[(start - length).saturating_sub(1)..(end - length + 1)];
-    }
-    rectangle += &text[start.saturating_sub(1)..start];
-    rectangle += &text[end..text.len().min(end.saturating_add(1))];
 
-    if end + length <= text.len() {
-        rectangle += &text[(start + length).saturating_sub(1)..text.len().min(end + length + 1)];
+    let index = start / (length + 1);
+    let relative_start = (start % (length + 1)).saturating_sub(1);
+    let relative_end = length.min(end % (length + 1) + 1);
+
+    if index > 0 {
+        rectangle += &lines[index - 1][relative_start..relative_end];
+    }
+    rectangle += &lines[index][relative_start..relative_end];
+
+    if index < lines.len() - 1 {
+        rectangle += &lines[index + 1][relative_start..relative_end];
     }
 
     rectangle
@@ -18,15 +22,19 @@ fn extract_rectangle(text: &str, start: usize, end: usize, length: usize) -> Str
 
 fn calculate_sum(text: &str) -> u32 {
     let re = Regex::new(r"\d+").unwrap();
-    let length = text.lines().next().unwrap().len() + 1;
+    let length = text.lines().next().unwrap().len();
+    let lines = text.lines().collect();
+
     let matches: Vec<_> = re
         .find_iter(text)
         .map(|caps| {
-            let rectangle = extract_rectangle(text, caps.start(), caps.end(), length);
-            if rectangle.chars().any(|c| !c.is_ascii_digit() && c != '.' && c!='\n') {
+            let rectangle = extract_rectangle(&lines, caps.start(), caps.end(), length);
+            if rectangle
+                .chars()
+                .any(|c| !c.is_ascii_digit() && c != '.')
+            {
                 caps.as_str().parse::<u32>().unwrap()
             } else {
-                println!("Invalid: {}, {rectangle}", caps.as_str());
                 0
             }
         })
