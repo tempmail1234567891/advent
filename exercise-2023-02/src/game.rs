@@ -1,7 +1,6 @@
-use std::error::Error;
+use crate::utils::{self, UtilsError};
 
 use super::cube;
-use super::utils;
 
 #[derive(Debug)]
 pub struct Game {
@@ -10,7 +9,7 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new(record: &str) -> Result<Self, Box<dyn Error>> {
+    pub fn new(record: &str) -> Result<Self, UtilsError> {
         let number = utils::extract_number(record, r"Game (\d+)")?;
         let cubes = record
             .split(';')

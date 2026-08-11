@@ -1,5 +1,4 @@
-use std::error::Error;
-use super::utils;
+use crate::utils::{self, UtilsError};
 
 #[derive(Debug)]
 pub struct Cube {
@@ -13,7 +12,7 @@ impl Cube {
         Self { red, green, blue }
     }
 
-    pub fn new_from_record(record: &str) -> Result<Self, Box<dyn Error>> {
+    pub fn new_from_record(record: &str) -> Result<Self, UtilsError> {
         let blue = utils::extract_number(record, r"(\d+) blue")?;
         let red = utils::extract_number(record, r"(\d+) red")?;
         let green = utils::extract_number(record, r"(\d+) green")?;
