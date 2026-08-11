@@ -1,7 +1,6 @@
 use std::fs;
-
-mod cube;
-mod game;
+use exercise_2023_02::cube;
+use exercise_2023_02::game;
 
 fn main() {
     let maximum_cube = cube::Cube::new(12, 13, 14);
