@@ -13,11 +13,24 @@ fn find_symbol(line: &str) -> Option<usize> {
         .map(|(i, _)| i)
 }
 
-fn check_symbol_in_line(line: &str, start: usize, end: usize, length: usize) -> Option<usize> {
-    let relative_start = (start % (length + 1)).saturating_sub(1);
-    let relative_end = length.min(end % (length + 1) + 1);
+fn check_symbol_in_line(
+    line: &str,
+    start: usize,
+    end: usize,
+    length: usize,
+) -> Result<Option<usize>, &str> {
+    match length.checked_add(1) {
+        Some(range) => {
+            let relative_start = (start % (range)).saturating_sub(1);
+            let relative_end = length.min(end % (range) + 1);
 
-    find_symbol(&line[relative_start..relative_end]).map(|index| relative_start + index)
+            Ok(
+                find_symbol(&line[relative_start..relative_end])
+                    .map(|index| relative_start + index),
+            )
+        }
+        None => Err("failed to extract first line"),
+    }
 }
 
 fn validate_rectangle(
@@ -26,16 +39,18 @@ fn validate_rectangle(
     end: usize,
     length: usize,
 ) -> Option<Symbol> {
-    let current_line = start / (length + 1);
+    if let Some(range) = length.checked_add(1) {
+        let current_line = start / range;
 
-    for i in current_line.saturating_sub(1)..=current_line + 1 {
-        if let Some(line) = lines.get(i)
-            && let Some(symbol_index) = check_symbol_in_line(line, start, end, length)
-        {
-            return Some(Symbol {
-                line: i,
-                index: symbol_index,
-            });
+        for i in current_line.saturating_sub(1)..=current_line + 1 {
+            if let Some(line) = lines.get(i)
+                && let Ok(Some(symbol_index)) = check_symbol_in_line(line, start, end, length)
+            {
+                return Some(Symbol {
+                    line: i,
+                    index: symbol_index,
+                });
+            }
         }
     }
     None
