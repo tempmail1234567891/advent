@@ -8,8 +8,8 @@ struct Symbol {
 
 fn find_symbol(line: &str) -> Option<usize> {
     line.char_indices()
-        .filter_map(|(i, c)| (!c.is_ascii_digit() && c != '.').then_some(i))
-        .next()
+        .find(|(_, c)| !c.is_ascii_digit() && *c != '.')
+        .map(|(i, _)| i)
 }
 
 fn check_symbol_in_line(line: &str, start: usize, end: usize, length: usize) -> Option<usize> {
