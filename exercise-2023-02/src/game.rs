@@ -19,8 +19,8 @@ impl Game {
         Ok(Self { number, cubes })
     }
 
-    pub fn smaller_than(&self, cube: &cube::Cube) -> bool {
-        self.cubes.iter().all(|m| m.smaller_than(cube))
+    pub fn possible_game(&self, cube: &cube::Cube) -> bool {
+        self.cubes.iter().all(|m| m < cube)
     }
 
     pub fn minimum_cube(&self) -> Option<cube::Cube> {

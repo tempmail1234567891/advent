@@ -1,4 +1,5 @@
 use crate::utils::{self, UtilsError};
+use std::cmp::Ordering;
 
 #[derive(Debug)]
 pub struct Cube {
@@ -20,12 +21,34 @@ impl Cube {
         Ok(Self { red, green, blue })
     }
 
-    pub fn smaller_than(&self, cube: &Cube) -> bool {
-        self.blue <= cube.blue && self.red <= cube.red && self.green <= cube.green
-    }
-
     pub fn power(&self) -> u32 {
         self.blue * self.red * self.green
     }
 }
 
+impl PartialEq for Cube {
+    fn eq(&self, other: &Self) -> bool {
+        self.blue == other.blue && self.red == other.red && self.green == other.green
+    }
+}
+
+impl PartialOrd for Cube {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        let blue = self.blue.cmp(&other.blue);
+        let red = self.red.cmp(&other.red);
+        let green = self.green.cmp(&other.green);
+
+        if blue == Ordering::Equal && red == Ordering::Equal && green == Ordering::Equal {
+            Some(Ordering::Equal)
+        } else if blue != Ordering::Greater
+            && red != Ordering::Greater
+            && green != Ordering::Greater
+        {
+            Some(Ordering::Less)
+        } else if blue != Ordering::Less && red != Ordering::Less && green != Ordering::Less {
+            Some(Ordering::Greater)
+        } else {
+            None // incomparable
+        }
+    }
+}

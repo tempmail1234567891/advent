@@ -10,7 +10,7 @@ fn main() {
 
     let sum: u32 = games
         .clone()
-        .filter(|game| game.smaller_than(&maximum_cube))
+        .filter(|game| game.possible_game(&maximum_cube))
         .map(|game| game.number)
         .sum();
     println!("Sum: {sum}");
