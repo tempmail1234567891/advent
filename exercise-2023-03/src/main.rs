@@ -1,22 +1,24 @@
 use regex::Regex;
 use std::fs;
 
-fn extract_rectangle(lines: &Vec<&str>, start: usize, end: usize, length: usize) -> String {
-    let mut rectangle = String::new();
-
-    let index = start / (length + 1);
+fn extract_from_line(line: &str, start: usize, end: usize, length: usize) -> &str {
     let relative_start = (start % (length + 1)).saturating_sub(1);
     let relative_end = length.min(end % (length + 1) + 1);
 
-    if index > 0 {
-        rectangle += &lines[index - 1][relative_start..relative_end];
-    }
-    rectangle += &lines[index][relative_start..relative_end];
+    &line[relative_start..relative_end]
+}
 
-    if index < lines.len() - 1 {
-        rectangle += &lines[index + 1][relative_start..relative_end];
-    }
+fn extract_rectangle(lines: &Vec<&str>, start: usize, end: usize, length: usize) -> String {
+    let mut rectangle = String::new();
 
+    let current_line = start / (length + 1);
+
+    for i in current_line.saturating_sub(1)..=current_line + 1 {
+        if let Some(line) = lines.get(i) {
+            rectangle +=  extract_from_line(line, start, end, length)
+        }
+    }
+    
     rectangle
 }
 
@@ -29,10 +31,7 @@ fn calculate_sum(text: &str) -> u32 {
         .find_iter(text)
         .map(|caps| {
             let rectangle = extract_rectangle(&lines, caps.start(), caps.end(), length);
-            if rectangle
-                .chars()
-                .any(|c| !c.is_ascii_digit() && c != '.')
-            {
+            if rectangle.chars().any(|c| !c.is_ascii_digit() && c != '.') {
                 caps.as_str().parse::<u32>().unwrap()
             } else {
                 0
