@@ -12,11 +12,6 @@ fn generate_vector_for_hand(hand: Chars) -> Vec<u32> {
 }
 
 #[derive(Debug)]
-struct Hand {
-    level: HandType
-}
-
-#[derive(Debug)]
 enum HandType {
     FiveKind,
     FourKind,
@@ -28,7 +23,9 @@ enum HandType {
 }
 
 impl HandType {
-    fn new(vector: Vec<u32>) -> Self {
+    fn new(hand: &str) -> Self {
+        let vector = generate_vector_for_hand(hand.chars());
+
         if vector[0] == 5 {
             HandType::FiveKind
         } else if vector[0] == 4 {
@@ -47,14 +44,8 @@ impl HandType {
     }
 }
 
-impl Hand {
-    fn new(hand: Chars) -> Self {
-        let vector = generate_vector_for_hand(hand);
-        Hand {level: HandType::new(vector)}
-    }
-}
 fn main() {
-    let hand = Hand::new("AJAAJ".chars());
+    let hand = HandType::new("AJAAJ");
     println!("{:?}", hand);
 
 }
