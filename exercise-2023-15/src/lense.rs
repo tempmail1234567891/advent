@@ -1,11 +1,11 @@
 #[derive(Debug)]
 pub struct Lense {
     pub name: String,
-    pub value: u32,
+    pub value: u8,
 }
 
 impl Lense {
-    pub fn new(name: String, value: u32) -> Self {
+    pub fn new(name: String, value: u8) -> Self {
         Self { name, value }
     }
 }
