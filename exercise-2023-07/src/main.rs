@@ -10,7 +10,7 @@ fn calculate_game_set(input: String) -> u32 {
         .filter_map(|line| Hand::new(line).ok())
         .collect::<Vec<_>>();
 
-    game_set.sort_by(|a, b| a.level.cmp(&b.level).then_with(|| a.cards.cmp(&b.cards)));
+    game_set.sort();
 
     println!("{:#?}", game_set);
 
