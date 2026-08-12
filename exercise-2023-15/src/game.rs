@@ -41,7 +41,6 @@ impl Game {
         false
     }
 
-    
     fn check_remove_operation(&mut self, command: &str) -> bool {
         let remove_pattern = Regex::new(r"\A([a-z]+)-\z").unwrap();
 
@@ -57,11 +56,23 @@ impl Game {
     }
 
     pub fn execute_operation(&mut self, command: &str) -> Result<(), &str> {
-        if !self.check_add_operation(command) && !self.check_remove_operation(command){
+        if !self.check_add_operation(command) && !self.check_remove_operation(command) {
             Err("Invalid pattern: {command}")
-        }
-        else {
+        } else {
             Ok(())
         }
+    }
+
+    pub fn calculate_game(&self) -> usize {
+        let mut boxes = self.boxes.iter().collect::<Vec<_>>();
+        boxes.sort_by_key(|(index, _)| *index);
+
+        let mut sum = 0;
+        for (i, current_box) in boxes {
+            for (j, lense) in current_box.lenses().iter().enumerate() {
+                sum += ((*i as usize) + 1) * (j + 1) * (lense.value as usize);
+            }
+        }
+        sum
     }
 }

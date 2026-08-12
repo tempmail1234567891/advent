@@ -22,4 +22,7 @@ impl Box {
             self.values.remove(index);
         }
     }
+    pub fn lenses(&self) -> &Vec<Lense>{
+        &self.values
+    }
 }
