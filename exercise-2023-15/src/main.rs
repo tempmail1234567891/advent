@@ -15,7 +15,7 @@ fn calculate_sum(input: &str) -> u32 {
 
 fn main() {
     let input = fs::read_to_string("input.txt").unwrap();
-    println!("Found: {}", calculate_sum(&input));
+    println!("Sum: {}", calculate_sum(&input));
 
     let mut g = game::Game::new();
     for line in input.split(','){

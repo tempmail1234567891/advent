@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use crate::{container::Box, lense::Lense};
 use regex::Regex;
+use thiserror::Error;
 
 pub fn hash(line: &str) -> u8 {
     let mut number: u32 = 0;
@@ -15,6 +16,18 @@ pub fn hash(line: &str) -> u8 {
     number as u8
 }
 
+#[derive(Debug, Error)]
+pub enum GameError {
+    #[error("Unknown command found")]
+    CommandNotFound,
+    
+    #[error("Box not found")]
+    BoxNotFound,
+    
+    #[error("Parsing number failed")]
+    Parsing(#[from] std::num::ParseIntError)
+}
+
 #[derive(Debug)]
 pub struct Game {
     boxes: HashMap<u8, Box>,
@@ -26,22 +39,23 @@ impl Game {
         Self { boxes }
     }
 
-    fn check_add_operation(&mut self, command: &str) -> bool {
+    fn check_add_operation(&mut self, command: &str) -> Result<bool, GameError> {
         let add_pattern = Regex::new(r"\A([a-z]+)=(\d)\z").unwrap();
 
         if let Some(captures) = add_pattern.captures(command) {
             let hash_number = hash(&captures[1]);
-            let lense_value = captures[2].parse::<u8>().unwrap();
+            let lense_value = captures[2].parse::<u8>()?;
 
             if let Some(current_box) = self.boxes.get_mut(&hash_number) {
                 current_box.add(Lense::new(String::from(&captures[1]), lense_value));
-                return true;
+                return Ok(true);
             }
+            return Err(GameError::BoxNotFound);
         }
-        false
+        Ok(false)
     }
 
-    fn check_remove_operation(&mut self, command: &str) -> bool {
+    fn check_remove_operation(&mut self, command: &str) -> Result<bool, GameError> {
         let remove_pattern = Regex::new(r"\A([a-z]+)-\z").unwrap();
 
         if let Some(captures) = remove_pattern.captures(command) {
@@ -49,15 +63,16 @@ impl Game {
 
             if let Some(current_box) = self.boxes.get_mut(&hash_number) {
                 current_box.remove(&captures[1]);
-                return true;
+                return Ok(true);
             }
+            return Err(GameError::BoxNotFound);
         }
-        false
+        Ok(false)
     }
 
-    pub fn execute_operation(&mut self, command: &str) -> Result<(), &str> {
-        if !self.check_add_operation(command) && !self.check_remove_operation(command) {
-            Err("Invalid pattern: {command}")
+    pub fn execute_operation(&mut self, command: &str) -> Result<(), GameError> {
+        if !self.check_add_operation(command)? && !self.check_remove_operation(command)? {
+            Err(GameError::CommandNotFound)
         } else {
             Ok(())
         }
