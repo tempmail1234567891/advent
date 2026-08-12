@@ -23,7 +23,7 @@ fn generate_vector_for_hand(hand: Chars) -> Vec<u32> {
     vector
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum HandType {
     HighCard,
     OnePair,
