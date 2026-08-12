@@ -1,6 +1,7 @@
 use std::fs;
 
-mod lense_box;
+mod container;
+mod lense;
 
 fn hash(line: &str) -> u8 {
     let mut number: u32 = 0;

@@ -1,14 +1,4 @@
-#[derive(Debug)]
-pub struct Lense {
-    name: String,
-    value: u32,
-}
-
-impl Lense {
-    pub fn new(name: String, value: u32) -> Self {
-        Self { name, value }
-    }
-}
+use crate::lense::Lense;
 
 #[derive(Debug)]
 pub struct Box {
