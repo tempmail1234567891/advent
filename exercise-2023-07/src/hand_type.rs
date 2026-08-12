@@ -23,23 +23,26 @@ pub enum HandType {
 }
 
 impl HandType {
-    pub fn new(hand: &str) -> Self {
+    pub fn new(hand: &str) -> Result<Self,&str> {
         let vector = generate_vector_for_hand(hand.chars());
 
+        if vector.iter().sum::<u32>() != 5 {
+            return Err("hand must contain exactly 5 cards");
+        }
         if vector[0] == 5 {
-            HandType::FiveKind
+            Ok(HandType::FiveKind)
         } else if vector[0] == 4 {
-            HandType::FourKind
+            Ok(HandType::FourKind)
         } else if vector[0] == 3 && vector[1] == 2 {
-            HandType::FullHouse
+            Ok(HandType::FullHouse)
         } else if vector[0] == 3 && vector[1] == 1 {
-            HandType::ThreeKind
+            Ok(HandType::ThreeKind)
         } else if vector[0] == 2 && vector[1] == 2 {
-            HandType::TwoPair
+            Ok(HandType::TwoPair)
         } else if vector[0] == 2 && vector[1] == 1 {
-            HandType::OnePair
+            Ok(HandType::OnePair)
         } else {
-            HandType::HighCard
+            Ok(HandType::HighCard)
         }
     }
 }
