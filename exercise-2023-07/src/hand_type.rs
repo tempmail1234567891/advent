@@ -1,4 +1,16 @@
-use std::{collections::HashMap, str::Chars};
+use std::{collections::HashMap, str::Chars, num::ParseIntError};
+use thiserror::Error;
+
+
+#[derive(Debug, Error)]
+pub enum HandError {
+    #[error("invalid value: {0}")]
+    InvalidValue(String),
+
+    #[error("failed to parse number")]
+    Parsing(#[from] ParseIntError),
+}
+
 
 fn generate_vector_for_hand(hand: Chars) -> Vec<u32> {
     let mut hashmap: HashMap<char, u32> = HashMap::new();
@@ -23,11 +35,11 @@ pub enum HandType {
 }
 
 impl HandType {
-    pub fn new(hand: &str) -> Result<Self,&str> {
+    pub fn new(hand: &str) -> Result<Self, HandError> {
         let vector = generate_vector_for_hand(hand.chars());
 
         if vector.iter().sum::<u32>() != 5 {
-            return Err("hand must contain exactly 5 cards");
+            return Err(HandError::InvalidValue(String::from("hand must contain exactly 5 cards")));
         }
         if vector[0] == 5 {
             Ok(HandType::FiveKind)
