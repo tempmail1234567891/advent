@@ -1,18 +1,20 @@
+use std::{collections::HashMap, sync::LazyLock};
+
 use crate::hand::Hand;
 
 const JOKERS: &str = "1";
+const MAPPER: LazyLock<HashMap<char,char>> = LazyLock::new(|| HashMap::from([
+    ('A', 'F'),
+    ('K', 'D'),
+    ('Q', 'C'),
+    ('J', '1'),
+    ('T', 'A'),
+]));
 
 fn parse_input(input: String) -> String {
     input
         .chars()
-        .map(|c| match c {
-            'A' => 'F',
-            'K' => 'D',
-            'Q' => 'C',
-            'J' => '1',
-            'T' => 'A',
-            c => c,
-        })
+        .map(|c| *MAPPER.get(&c).unwrap_or(&c))
         .collect()
 }
 
