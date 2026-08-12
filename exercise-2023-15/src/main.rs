@@ -1,6 +1,8 @@
 use std::fs;
 
-fn hash(line: &str) -> u32 {
+mod lense_box;
+
+fn hash(line: &str) -> u8 {
     let mut number: u32 = 0;
 
     for character in line.chars() {
@@ -9,13 +11,13 @@ fn hash(line: &str) -> u32 {
         number *= 17;
         number %= 256;
     }
-    number
+    number as u8
 }
 
 fn calculate_sum(input: &str) -> u32 {
     let mut sum = 0;
     for line in input.split(','){
-        sum += hash(line);
+        sum += hash(line) as u32;
     }
     sum
 }

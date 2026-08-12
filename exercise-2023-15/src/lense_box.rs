@@ -12,12 +12,13 @@ impl Lense {
 
 #[derive(Debug)]
 pub struct Box {
+    index: u8,
     values: Vec<Lense>,
 }
 
 impl Box {
-    pub fn new() -> Self {
-        Self { values: vec![] }
+    pub fn new(index: u8) -> Self {
+        Self { values: vec![], index }
     }
     pub fn add(&mut self, lense: Lense) {
         if let Some(found) = self.values.iter_mut().find(|l| l.name == lense.name) {
