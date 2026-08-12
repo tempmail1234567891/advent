@@ -25,13 +25,13 @@ fn generate_vector_for_hand(hand: Chars) -> Vec<u32> {
 
 #[derive(Debug)]
 pub enum HandType {
-    FiveKind,
-    FourKind,
-    FullHouse,
-    ThreeKind,
-    TwoPair,
-    OnePair,
     HighCard,
+    OnePair,
+    TwoPair,
+    ThreeKind,
+    FullHouse,
+    FourKind,
+    FiveKind,
 }
 
 impl HandType {
