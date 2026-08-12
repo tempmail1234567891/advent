@@ -1,5 +1,7 @@
 use crate::hand::Hand;
 
+const JOKERS: &str = "1";
+
 fn parse_input(input: String) -> String {
     input
         .chars()
@@ -7,7 +9,7 @@ fn parse_input(input: String) -> String {
             'A' => 'F',
             'K' => 'D',
             'Q' => 'C',
-            'J' => 'B',
+            'J' => '1',
             'T' => 'A',
             c => c,
         })
@@ -17,7 +19,7 @@ fn parse_input(input: String) -> String {
 pub fn calculate_game_set(input: String) -> u32 {
     let mut game_set = parse_input(input)
         .lines()
-        .filter_map(|line| Hand::new(line).ok())
+        .filter_map(|line| Hand::new(line, JOKERS).ok())
         .collect::<Vec<_>>();
 
     game_set.sort();

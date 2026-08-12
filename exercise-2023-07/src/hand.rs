@@ -9,10 +9,10 @@ pub struct Hand {
 }
 
 impl Hand {
-    pub fn new(record: &str) -> Result<Self, HandError> {
+    pub fn new(record: &str, jokers: &str) -> Result<Self, HandError> {
         let input = record.split_whitespace().take(2).collect::<Vec<_>>();
         if input.len() == 2 {
-            let level = HandType::new(input[0])?;
+            let level = HandType::new(input[0], jokers)?;
             let bet = input[1].parse::<u32>()?;
             let cards = String::from(input[0]);
             Ok(Self { cards, level, bet })
