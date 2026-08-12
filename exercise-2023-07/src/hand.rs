@@ -3,9 +3,9 @@ use std::cmp::Ordering;
 
 #[derive(Debug, Eq, PartialEq)]
 pub struct Hand {
-    pub cards: String,
-    pub level: HandType,
-    pub bet: u32,
+    cards: String,
+    level: HandType,
+    bet: u32,
 }
 
 impl Hand {
@@ -21,6 +21,9 @@ impl Hand {
                 "record '{record}' must include 2 values",
             )))
         }
+    }
+    pub fn calculate(&self, rank:u32) -> u32 {
+        self.bet * rank
     }
 }
 

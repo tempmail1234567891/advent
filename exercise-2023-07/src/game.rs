@@ -28,7 +28,7 @@ pub fn calculate_game_set(input: String) -> u32 {
 
     let mut sum = 0;
     for (index, hand) in game_set.iter().enumerate() {
-        sum += hand.bet * (index as u32 + 1)
+        sum += hand.calculate(index as u32 + 1)
     }
     sum
 }
