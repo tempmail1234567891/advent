@@ -1,0 +1,121 @@
+use std::collections::{HashMap, VecDeque};
+
+pub type BoardType = HashMap<Point, TileType>;
+
+#[derive(Debug, PartialEq)]
+pub enum TileType {
+    Rock,
+    Grass,
+    Marked(usize),
+}
+
+#[derive(Debug, Hash, PartialEq, Eq, Clone, Copy)]
+pub struct Point {
+    x: usize,
+    y: usize,
+}
+
+impl Point {
+    fn new(x: usize, y: usize) -> Self {
+        Self { x, y }
+    }
+
+    fn near(&self) -> Vec<Point> {
+        vec![
+            Point::new(self.x + 1, self.y),
+            Point::new(self.x.saturating_sub(1), self.y),
+            Point::new(self.x, self.y + 1),
+            Point::new(self.x, self.y.saturating_sub(1)),
+        ]
+    }
+}
+
+pub struct Board {
+    start: Point,
+    length: usize,
+    pub board: BoardType,
+}
+
+impl Board {
+    pub fn setup(input: &str) -> Self {
+        let mut start = Point::new(0, 0);
+        let mut board = HashMap::new();
+        let mut length = 0;
+
+        for (i, line) in input.lines().enumerate() {
+            length = line.len();
+            for (j, c) in line.char_indices() {
+                let tile = match c {
+                    'S' => {
+                        start = Point::new(i, j);
+                        TileType::Marked(0)
+                    }
+                    '#' => TileType::Rock,
+                    _ => TileType::Grass,
+                };
+
+                board.insert(Point::new(i, j), tile);
+            }
+        }
+
+        Self {
+            length,
+            start,
+            board,
+        }
+    }
+    pub fn walk(&mut self) -> Result<(), String> {
+        let mark = match self.board.get(&self.start) {
+            Some(TileType::Marked(mark)) => *mark,
+            Some(_) => return Err("given tile is not marked".to_string()),
+            None => return Err("given point not in board".to_string()),
+        };
+
+        let mut queue = VecDeque::new();
+        queue.push_back((self.start, mark));
+
+        while let Some((point, mark)) = queue.pop_front() {
+            for next in point.near() {
+                if matches!(self.board.get(&next), Some(TileType::Grass)) {
+                    self.board.insert(next, TileType::Marked(mark + 1));
+                    queue.push_back((next, mark + 1));
+                }
+            }
+        }
+        Ok(())
+    }
+
+    pub fn calculate_steps(&self, steps: usize) -> usize {
+        let devider = (steps + 1) % 2;
+
+        self.board
+            .values()
+            .map(|tile| {
+                if let TileType::Marked(mark) = tile
+                    && *mark <= steps
+                {
+                    (mark + devider) % 2
+                } else {
+                    0
+                }
+            })
+            .sum()
+    }
+
+    pub fn print(&self) {
+        for x in 0..=self.length - 1 {
+            for y in 0..=self.length - 1 {
+                let point = Point { x, y };
+
+                let character = match self.board.get(&point) {
+                    Some(TileType::Marked(mark)) => format!("{:02} ", mark),
+                    Some(TileType::Rock) => " # ".to_string(),
+                    Some(TileType::Grass) => " . ".to_string(),
+                    None => " ? ".to_string(),
+                };
+                print!("{}", character);
+            }
+            println!();
+        }
+    }
+}
