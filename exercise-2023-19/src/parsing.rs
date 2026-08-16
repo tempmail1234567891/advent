@@ -1,6 +1,5 @@
 use crate::workflow::Workflow;
-use crate::step::Handler;
-use crate::shape::Shape;
+use crate::shape::{Shape, ShapeHandler};
 
 
 pub fn parse_workflow(line: &str) -> Result<Workflow, String> {
@@ -31,28 +30,28 @@ pub fn parse_workflow(line: &str) -> Result<Workflow, String> {
 
         let handler = match (field, op) {
             ('x', '>')
-                => Handler::new(target, move |s| s.x > value),
+                => ShapeHandler::new(target, move |s| s.x > value),
 
             ('x', '<')
-                => Handler::new(target, move |s| s.x < value),
+                => ShapeHandler::new(target, move |s| s.x < value),
 
             ('m', '>')
-                => Handler::new(target, move |s| s.m > value),
+                => ShapeHandler::new(target, move |s| s.m > value),
 
             ('m', '<')
-                => Handler::new(target, move |s| s.m < value),
+                => ShapeHandler::new(target, move |s| s.m < value),
 
             ('a', '>')
-                => Handler::new(target, move |s| s.a > value),
+                => ShapeHandler::new(target, move |s| s.a > value),
 
             ('a', '<')
-                => Handler::new(target, move |s| s.a < value),
+                => ShapeHandler::new(target, move |s| s.a < value),
 
             ('s', '>')
-                => Handler::new(target, move |s| s.s > value),
+                => ShapeHandler::new(target, move |s| s.s > value),
 
             ('s', '<')
-                => Handler::new(target, move |s| s.s < value),
+                => ShapeHandler::new(target, move |s| s.s < value),
 
             _ => return Err(format!("unsupported condition: {condition}")),
         };

@@ -1,52 +1,27 @@
 use std::fmt::Debug;
-use crate::shape::Shape;
+use crate::shape::{Shape, ShapeHandler};
 
-type CheckFn = Box<dyn Fn(&Shape) -> bool + 'static>;
-pub struct Handler {
-    pub target: String,
-    pub check_fn: CheckFn,
-}
-
-impl Handler {
-    pub fn new<F>(target: &str, check_fn: F) -> Self
-    where
-        F: Fn(&Shape) -> bool + 'static,
-    {
-        Self {
-            target: target.to_string(),
-            check_fn: Box::new(check_fn),
-        }
-    }
-}
-
-impl std::fmt::Debug for Handler {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("Handler")
-            .field("target", &self.target)
-            .finish()
-    }
-}
 
 #[derive(Debug)]
 pub struct Step {
-    pub value: Handler,
+    pub value: ShapeHandler,
     pub next: Option<Box<Step>>,
 }
 
 impl Step {
-    pub fn new(value: Handler) -> Self {
+    pub fn new(value: ShapeHandler) -> Self {
         Self {
             value: value,
             next: None,
         }
     }
 
-    pub fn push_left(&mut self, value: Handler) {
+    pub fn push_left(&mut self, value: ShapeHandler) {
         let old = std::mem::replace(self, Step::new(value));
         self.next = Some(Box::new(old));
     }
 
-    pub fn push_right(&mut self, value: Handler) {
+    pub fn push_right(&mut self, value: ShapeHandler) {
         let mut node = Step::new(value);
         node.next = self.next.take();
         self.next = Some(Box::new(node));
