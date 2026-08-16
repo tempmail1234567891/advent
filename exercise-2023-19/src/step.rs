@@ -52,11 +52,11 @@ impl Step {
         self.next = Some(Box::new(node));
     }
 
-    pub fn run(self, shape: &Shape)-> Option<String> {
+    pub fn run(&self, shape: &Shape)-> Option<String> {
         if (self.value.check_fn)(shape) {
-            Some(self.value.target)
+            Some(self.value.target.clone())
         }
-        else if let Some(next) = self.next {
+        else if let Some(next) = &self.next {
             next.run(shape)
         }
         else {

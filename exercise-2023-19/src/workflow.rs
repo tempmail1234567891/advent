@@ -1,4 +1,7 @@
-use crate::step::{Step,Handler};
+use crate::{
+    shape::Shape,
+    step::{Handler, Step},
+};
 
 #[derive(Debug)]
 pub struct Workflow {
@@ -19,9 +22,18 @@ impl Workflow {
     pub fn add_step(&mut self, value: Handler) {
         if let Some(first) = self.steps.as_mut() {
             first.push_left(value);
-        }
-        else {
+        } else {
             self.steps = Some(Step::new(value));
+        }
+    }
+
+    pub fn run(&self, shape: &Shape) -> String {
+        if let Some(steps) = &self.steps
+            && let Some(result) = steps.run(shape)
+        {
+            result
+        } else {
+            self.default.clone()
         }
     }
 }
