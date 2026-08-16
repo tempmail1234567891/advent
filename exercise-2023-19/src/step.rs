@@ -1,4 +1,4 @@
-use crate::shape::{Shape, ShapeHandler};
+use crate::shape::{Shape, ShapeHandler, Target};
 use std::fmt::Debug;
 
 #[derive(Debug)]
@@ -20,7 +20,7 @@ impl Step {
         self.next = Some(Box::new(old));
     }
 
-    pub fn run(&self, shape: &Shape) -> Option<String> {
+    pub fn run(&self, shape: &Shape) -> Option<Target> {
         if (self.value.check_fn)(shape) {
             Some(self.value.target.clone())
         } else if let Some(next) = &self.next {

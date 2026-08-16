@@ -6,8 +6,28 @@ pub struct Shape {
 }
 
 type CheckFn = Box<dyn Fn(&Shape) -> bool + 'static>;
+
+#[derive(Debug, Clone)]
+pub enum Target {
+    Workflow(String),
+    Accepted,
+    Regected,
+}
+
+impl Target {
+    pub fn new(input: &str) -> Self {
+        if input == "R" {
+            Target::Regected
+        } else if input == "A" {
+            Target::Accepted
+        } else {
+            Target::Workflow(input.to_string())
+        }
+    }
+}
+
 pub struct ShapeHandler {
-    pub target: String,
+    pub target: Target,
     pub check_fn: CheckFn,
 }
 
@@ -17,7 +37,7 @@ impl ShapeHandler {
         F: Fn(&Shape) -> bool + 'static,
     {
         Self {
-            target: target.to_string(),
+            target: Target::new(target),
             check_fn: Box::new(check_fn),
         }
     }

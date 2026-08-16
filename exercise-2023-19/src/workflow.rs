@@ -1,11 +1,11 @@
 use crate::step::Step;
-use crate::shape::{Shape, ShapeHandler};
+use crate::shape::{Shape, ShapeHandler, Target};
 
 #[derive(Debug)]
 pub struct Workflow {
     pub name: String,
     steps: Option<Step>,
-    default: String,
+    default: Target,
 }
 
 impl Workflow {
@@ -13,7 +13,7 @@ impl Workflow {
         Self {
             name: name.to_string(),
             steps: None,
-            default: default.to_string(),
+            default: Target::new(default),
         }
     }
 
@@ -25,7 +25,7 @@ impl Workflow {
         }
     }
 
-    pub fn run(&self, shape: &Shape) -> String {
+    pub fn run(&self, shape: &Shape) -> Target {
         if let Some(steps) = &self.steps
             && let Some(result) = steps.run(shape)
         {
