@@ -22,7 +22,7 @@ pub fn parse_workflow(line: &str) -> Result<Workflow, String> {
     for part in parts.rev() {
         // x>10\:one
         let (condition, target) = part
-            .split_once("\\:")
+            .split_once(":")
             .ok_or_else(|| format!("invalid step: {part}"))?;
 
         let (field, op, value) = parse_condition(condition)?;
