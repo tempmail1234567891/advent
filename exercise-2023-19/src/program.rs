@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 use crate::workflow::Workflow;
-use crate::parsing;
 use crate::shape::Shape;
 
 pub struct Program {
@@ -12,13 +11,8 @@ impl Program {
         Self {workflows: HashMap::new()}
     }
 
-    pub fn add_workflow(&mut self, line: &str) {
-        if let Ok(workflow) = parsing::parse_workflow(line) {
-            self.workflows.insert(workflow.name.clone(), workflow);
-        }
-        else {
-            println!("Invalid workflow found: {line}");
-        }
+    pub fn add_workflow(&mut self, workflow: Workflow) {
+        self.workflows.insert(workflow.name.clone(), workflow);
     }
 
     pub fn run(&self, start: &String, shape: &Shape) -> Result<String, &str> {
