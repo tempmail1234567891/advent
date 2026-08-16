@@ -43,7 +43,7 @@ impl Board {
         let mut length = 0;
 
         for (i, line) in input.lines().enumerate() {
-            length = line.len() - 1;
+            length = line.len();
             for (j, c) in line.char_indices() {
                 let tile = match c {
                     'S' => {
@@ -86,21 +86,25 @@ impl Board {
     }
 
     pub fn calculate_steps(&self, steps: usize) -> usize {
-        let devider = (steps+1) % 2;
+        let devider = (steps + 1) % 2;
 
-        self.board.values().map(|tile| {
-            if let TileType::Marked(mark) = tile && *mark <= steps {
-                (mark+devider) % 2
-            }
-            else {
-                0
-            }
-        }).sum()
+        self.board
+            .values()
+            .map(|tile| {
+                if let TileType::Marked(mark) = tile
+                    && *mark <= steps
+                {
+                    (mark + devider) % 2
+                } else {
+                    0
+                }
+            })
+            .sum()
     }
 
     pub fn print(&self) {
-        for x in 0..=self.length {
-            for y in 0..=self.length {
+        for x in 0..=self.length - 1 {
+            for y in 0..=self.length - 1 {
                 let point = Point { x, y };
 
                 let character = match self.board.get(&point) {
