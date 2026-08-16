@@ -41,18 +41,15 @@ impl Step {
         }
     }
 
-    pub fn push_left(mut self, value: Handler) -> Step {
-        let mut node = Step::new(value);
-        node.next = Some(Box::new(self));
-        self = node;
-        self
+    pub fn push_left(&mut self, value: Handler) {
+        let old = std::mem::replace(self, Step::new(value));
+        self.next = Some(Box::new(old));
     }
 
-    pub fn push_right(mut self, value: Handler) -> Step {
+    pub fn push_right(&mut self, value: Handler) {
         let mut node = Step::new(value);
-        node.next = self.next;
+        node.next = self.next.take();
         self.next = Some(Box::new(node));
-        self
     }
 
     pub fn run(self, shape: &Shape)-> Option<String> {
