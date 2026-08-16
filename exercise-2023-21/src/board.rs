@@ -1,30 +1,39 @@
 use std::collections::HashMap;
 
-#[derive(Debug)]
+type BoardType = HashMap<Point, TileType>;
+
+#[derive(Debug, PartialEq)]
 pub enum TileType {
     Rock,
     Grass,
     Marked(usize),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Hash, PartialEq, Eq)]
 struct Point {
     x: usize,
     y: usize,
 }
+
 impl Point {
     fn new(x: usize, y: usize) -> Self {
         Self { x, y }
     }
 
-    fn near(&self, other: Point) -> bool {
-        self.x.abs_diff(other.x) + self.y.abs_diff(other.y) == 1
+    fn near(&self, board: &BoardType) -> Vec<Point> {
+        let mut next_points = vec![];
+        
+        let point = Point::new(self.x - 1, self.y);
+        if let Some(tile) = board.get(&point) && *tile == TileType::Grass {
+            next_points.push(point);
+        }
+        next_points
     }
 }
 
 pub struct Board {
     start: Point,
-    pub board: HashMap<(usize, usize), TileType>,
+    pub board: BoardType,
 }
 
 impl Board {
@@ -43,7 +52,7 @@ impl Board {
                     _ => TileType::Grass,
                 };
 
-                board.insert((i, j), tile);
+                board.insert(Point::new(i, j), tile);
             }
         }
 
