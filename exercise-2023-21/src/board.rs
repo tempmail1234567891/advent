@@ -43,7 +43,7 @@ impl Board {
         let mut length = 0;
 
         for (i, line) in input.lines().enumerate() {
-            length = line.len() -1 ;
+            length = line.len() - 1;
             for (j, c) in line.char_indices() {
                 let tile = match c {
                     'S' => {
@@ -58,7 +58,11 @@ impl Board {
             }
         }
 
-        Self { length, start, board }
+        Self {
+            length,
+            start,
+            board,
+        }
     }
     pub fn walk(&mut self) -> Result<(), String> {
         walk(&self.start, &mut self.board)
@@ -83,20 +87,22 @@ impl Board {
 }
 
 fn walk(point: &Point, board: &mut BoardType) -> Result<(), String> {
-    println!("{:?}", point);
     let mark = match board.get(point) {
         Some(TileType::Marked(mark)) => *mark,
         Some(_) => return Err("given tile is not marked".to_string()),
         None => return Err("given point not in board".to_string()),
     };
 
-    let neighbors = point.near();
-
-    for next in neighbors {
+    let mut targets = vec![];
+    for next in point.near() {
         if let Some(TileType::Grass) = board.get(&next) {
             board.insert(next, TileType::Marked(mark + 1));
-            walk(&next, board).ok();
+            targets.push(next);
         }
+    }
+
+    for next in targets {
+        walk(&next, board).ok();
     }
 
     Ok(())
