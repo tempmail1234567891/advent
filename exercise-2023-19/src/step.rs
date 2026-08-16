@@ -13,7 +13,7 @@ impl Handler {
         F: Fn(&Shape) -> bool + 'static,
     {
         Self {
-            target: String::from(target),
+            target: target.to_string(),
             check_fn: Box::new(check_fn),
         }
     }

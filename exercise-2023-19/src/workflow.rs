@@ -13,9 +13,9 @@ pub struct Workflow {
 impl Workflow {
     pub fn new(name: &str, default: &str) -> Self {
         Self {
-            name: String::from(name),
+            name: name.to_string(),
             steps: None,
-            default: String::from(default),
+            default: default.to_string(),
         }
     }
 
