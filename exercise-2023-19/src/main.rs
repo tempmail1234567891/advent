@@ -1,17 +1,28 @@
-use crate::{shape::Shape, step::{Handler}};
+use crate::shape::Shape;
 use crate::workflow::Workflow;
 
+mod parsing;
+mod program;
 mod shape;
-mod workflow;
 mod step;
+mod workflow;
 
 fn main() {
-    let mut workflow = Workflow::new("ex", "A");
+    let mut program = program::Program::new();
+    let input = std::fs::read_to_string("input.txt").unwrap();
 
-    workflow.add_step(Handler::new("R", |s| s.a > 30));
-    workflow.add_step(Handler::new("two", |s| s.m < 20));
-    workflow.add_step(Handler::new("one", |s| s.x > 10));
+    let (workflows, shapes) = parsing::parse_input(&input);
 
-    let shape = Shape::new(1,22,31,1);
-    println!("{:?}", workflow);
+    for workflow in workflows {
+        program.add_workflow(workflow);
+    }
+
+    let start = String::from("in");
+
+    for shape in shapes {
+        match program.run(&start, &shape) {
+            Ok(result) => println!("{:?}", result),
+            Err(error) => println!("Error: {:?}", error),
+        }
+    }
 }
