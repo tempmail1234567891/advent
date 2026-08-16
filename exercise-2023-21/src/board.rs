@@ -2,7 +2,7 @@
 pub enum TileType {
     Rock,
     Grass,
-    Marked,
+    Marked(usize),
 }
 
 #[derive(Debug)]
@@ -13,6 +13,10 @@ struct Point {
 impl Point {
     fn new(x: usize, y: usize) -> Self {
         Self { x, y }
+    }
+
+    fn near(&self, other: Point) -> bool {
+        self.x.abs_diff(other.x) + self.y.abs_diff(other.y) == 1
     }
 }
 
@@ -31,7 +35,7 @@ impl Board {
                 .map(|(j, c)| match c {
                     'S' => {
                         point = Point::new(i, j);
-                        TileType::Marked
+                        TileType::Marked(0)
                     }
                     '#' => TileType::Rock,
                     _ => TileType::Grass,
