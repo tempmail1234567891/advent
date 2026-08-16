@@ -65,7 +65,24 @@ impl Board {
         }
     }
     pub fn walk(&mut self) -> Result<(), String> {
-        walk(&self.start, &mut self.board)
+        let mark = match self.board.get(&self.start) {
+            Some(TileType::Marked(mark)) => *mark,
+            Some(_) => return Err("given tile is not marked".to_string()),
+            None => return Err("given point not in board".to_string()),
+        };
+
+        let mut queue = VecDeque::new();
+        queue.push_back((self.start, mark));
+
+        while let Some((point, mark)) = queue.pop_front() {
+            for next in point.near() {
+                if matches!(self.board.get(&next), Some(TileType::Grass)) {
+                    self.board.insert(next, TileType::Marked(mark + 1));
+                    queue.push_back((next, mark + 1));
+                }
+            }
+        }
+        Ok(())
     }
 
     pub fn print(&self) {
@@ -84,25 +101,4 @@ impl Board {
             println!();
         }
     }
-}
-
-fn walk(point: &Point, board: &mut BoardType) -> Result<(), String> {
-    let mark = match board.get(point) {
-        Some(TileType::Marked(mark)) => *mark,
-        Some(_) => return Err("given tile is not marked".to_string()),
-        None => return Err("given point not in board".to_string()),
-    };
-
-    let mut queue = VecDeque::new();
-    queue.push_back((*point, mark));
-
-    while let Some((point, mark)) = queue.pop_front() {
-        for next in point.near() {
-            if matches!(board.get(&next), Some(TileType::Grass)) {
-                board.insert(next, TileType::Marked(mark + 1));
-                queue.push_back((next, mark + 1));
-            }
-        }
-    }
-    Ok(())
 }
