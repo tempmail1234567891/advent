@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub struct Shape {
     pub x: i32,
     pub m: i32,
@@ -7,7 +8,7 @@ pub struct Shape {
 
 type CheckFn = Box<dyn Fn(&Shape) -> bool + 'static>;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Target {
     Workflow(String),
     Accepted,

@@ -16,10 +16,18 @@ fn main() {
 
     let start = String::from("in");
 
+    let mut accepted_shapes = vec![];
+
     for shape in shapes {
         match program.run(&start, &shape) {
-            Ok(result) => println!("{:?}", result),
+            Ok(result) => {
+                if result == shape::Target::Accepted {
+                    accepted_shapes.push(shape);
+                }
+            },
             Err(error) => println!("Error: {:?}", error),
         }
     }
+    let sum = accepted_shapes.iter().map(|s| s.x+ s.a+s.m+s.s).sum::<i32>();
+    println!("{:?}", sum);
 }
