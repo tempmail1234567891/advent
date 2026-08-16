@@ -56,6 +56,14 @@ fn parse_condition(condition: &str) -> Result<(char, char, i32), String> {
     Ok((field, op, value))
 }
 
+fn parse_value(line: &mut std::str::Split<'_, char>, key: &str) -> i32 {
+    line.next()
+        .unwrap()
+        .strip_prefix(key)
+        .unwrap()
+        .parse()
+        .unwrap()
+}
 pub fn parse_shape(line: &str) -> Shape {
     let line = line
         .trim()
@@ -66,39 +74,12 @@ pub fn parse_shape(line: &str) -> Shape {
 
     let mut values = line.split(',');
 
-    let x = values
-        .next()
-        .unwrap()
-        .strip_prefix("x=")
-        .unwrap()
-        .parse()
-        .unwrap();
-
-    let m = values
-        .next()
-        .unwrap()
-        .strip_prefix("m=")
-        .unwrap()
-        .parse()
-        .unwrap();
-
-    let a = values
-        .next()
-        .unwrap()
-        .strip_prefix("a=")
-        .unwrap()
-        .parse()
-        .unwrap();
-
-    let s = values
-        .next()
-        .unwrap()
-        .strip_prefix("s=")
-        .unwrap()
-        .parse()
-        .unwrap();
-
-    Shape { x, m, a, s }
+    Shape {
+        x: parse_value(&mut values, "x="),
+        m: parse_value(&mut values, "m="),
+        a: parse_value(&mut values, "a="),
+        s: parse_value(&mut values, "s="),
+    }
 }
 
 pub fn parse_input(input: &str) -> (Vec<Workflow>, Vec<Shape>) {
