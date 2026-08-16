@@ -1,26 +1,17 @@
+use crate::{shape::Shape, step::{Handler}};
+use crate::workflow::Workflow;
+
 mod shape;
 mod workflow;
-mod program;
+mod step;
 
 fn main() {
-    let mut program = program::Program::new();
+    let mut workflow = Workflow::new("ex", "A");
 
-    program.add_workflow(workflow::Workflow::new("ex", |s| s.x > 10));
-    program.add_workflow(workflow::Workflow::new("ex_success", |s| s.m < 20));
-    program.add_workflow(workflow::Workflow::new("ex_failed", |s| s.m < 20));
-    program.add_workflow(workflow::Workflow::new("ex_failed2", |s| s.a > 30));
-    program.add_workflow(workflow::Workflow::new("accept", |s| true));
-    program.add_workflow(workflow::Workflow::new("reject", |s| true));
+    workflow.add_step(Handler::new("R", |s| s.a > 30));
+    workflow.add_step(Handler::new("two", |s| s.m < 20));
+    workflow.add_step(Handler::new("one", |s| s.x > 10));
 
-    program.add_connection("ex", "ex_success", "ex_failed");
-    program.add_failure("ex_failed", "ex_failed2");
-    program.add_connection("ex_failed2", "accept", "reject");
-
-    let shape = shape::Shape {
-        x: 1,
-        a: 31,
-        m: 21,
-        s: 1,
-    };
-    println!("{}", program.run("ex", &shape));
+    let shape = Shape::new(1,22,31,1);
+    println!("{:?}", workflow);
 }

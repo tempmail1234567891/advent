@@ -1,30 +1,27 @@
-use crate::shape::Shape;
+use crate::step::{Step,Handler};
 
-pub struct Workflow<'a> {
+#[derive(Debug)]
+pub struct Workflow {
     pub name: String,
-    pub check: Box<dyn Fn(&Shape) -> bool + 'a>,
-    pub success: Option<String>,
-    pub failure: Option<String>,
+    steps: Option<Step>,
+    default: String,
 }
 
-impl<'a> Workflow<'a> {
-    pub fn new<F>(name: &str, check: F) -> Self
-    where
-        F: Fn(&Shape) -> bool + 'a,
-    {
+impl Workflow {
+    pub fn new(name: &str, default: &str) -> Self {
         Self {
             name: String::from(name),
-            check: Box::new(check),
-            success: None,
-            failure: None,
+            steps: None,
+            default: String::from(default),
         }
     }
 
-    pub fn set_success(&mut self, success: &str) {
-        self.success = Some(String::from(success));
-    }
-
-    pub fn set_failure(&mut self, failure: &str) {
-        self.failure = Some(String::from(failure));
+    pub fn add_step(&mut self, value: Handler) {
+        if let Some(first) = self.steps.as_mut() {
+            first.push_left(value);
+        }
+        else {
+            self.steps = Some(Step::new(value));
+        }
     }
 }
