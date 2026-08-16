@@ -29,14 +29,14 @@ pub struct Board {
 
 impl Board {
     pub fn setup(input: &str) -> Self {
-        let mut start = Point { x: 0, y: 0 };
+        let mut start = Point::new(0, 0);
         let mut board = HashMap::new();
 
         for (i, line) in input.lines().enumerate() {
             for (j, c) in line.char_indices() {
                 let tile = match c {
                     'S' => {
-                        start = Point { x: i, y: j };
+                        start = Point::new(i, j);
                         TileType::Marked(0)
                     }
                     '#' => TileType::Rock,
