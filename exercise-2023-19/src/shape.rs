@@ -4,3 +4,9 @@ pub struct Shape {
     pub a:u32,
     pub s:u32,
 }
+
+impl Shape {
+    pub fn new(x:u32,m:u32,a:u32,s:u32) -> Self {
+        Self { x, m, a, s }
+    }
+}
