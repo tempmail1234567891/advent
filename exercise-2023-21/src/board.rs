@@ -85,6 +85,19 @@ impl Board {
         Ok(())
     }
 
+    pub fn calculate_steps(&self, steps: usize) -> usize {
+        let devider = (steps+1) % 2;
+
+        self.board.values().map(|tile| {
+            if let TileType::Marked(mark) = tile && *mark <= steps {
+                (mark+devider) % 2
+            }
+            else {
+                0
+            }
+        }).sum()
+    }
+
     pub fn print(&self) {
         for x in 0..=self.length {
             for y in 0..=self.length {
