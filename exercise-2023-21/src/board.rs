@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 
 pub type BoardType = HashMap<Point, TileType>;
 
@@ -74,10 +74,10 @@ impl Board {
                 let point = Point { x, y };
 
                 let character = match self.board.get(&point) {
-                    Some(TileType::Marked(mark)) => mark.to_string(),
-                    Some(TileType::Rock) => "#".to_string(),
-                    Some(TileType::Grass) => ".".to_string(),
-                    None => "?".to_string(),
+                    Some(TileType::Marked(mark)) => format!("{:02} ", mark),
+                    Some(TileType::Rock) => " # ".to_string(),
+                    Some(TileType::Grass) => " . ".to_string(),
+                    None => " ? ".to_string(),
                 };
                 print!("{}", character);
             }
@@ -93,17 +93,16 @@ fn walk(point: &Point, board: &mut BoardType) -> Result<(), String> {
         None => return Err("given point not in board".to_string()),
     };
 
-    let mut targets = vec![];
-    for next in point.near() {
-        if let Some(TileType::Grass) = board.get(&next) {
-            board.insert(next, TileType::Marked(mark + 1));
-            targets.push(next);
+    let mut queue = VecDeque::new();
+    queue.push_back((*point, mark));
+
+    while let Some((point, mark)) = queue.pop_front() {
+        for next in point.near() {
+            if matches!(board.get(&next), Some(TileType::Grass)) {
+                board.insert(next, TileType::Marked(mark + 1));
+                queue.push_back((next, mark + 1));
+            }
         }
     }
-
-    for next in targets {
-        walk(&next, board).ok();
-    }
-
     Ok(())
 }
