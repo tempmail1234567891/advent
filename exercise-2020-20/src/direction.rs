@@ -1,4 +1,4 @@
-#[derive(Debug, Hash)]
+#[derive(Debug, Clone, Copy)]
 pub enum Direction {
     Default,
     XFlip,
@@ -13,10 +13,3 @@ pub enum RelativeLocation {
     OnLeft,
     OnRight,
 }
-
-pub const ALL: [RelativeLocation; 4] = [
-    RelativeLocation::Above,
-    RelativeLocation::Below,
-    RelativeLocation::OnLeft,
-    RelativeLocation::OnRight,
-];

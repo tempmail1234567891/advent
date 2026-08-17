@@ -1,4 +1,3 @@
-use crate::direction;
 use crate::direction::{Direction, RelativeLocation};
 
 #[derive(Debug, Hash, PartialEq, Eq, Copy, Clone)]
@@ -38,7 +37,7 @@ impl Card {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Tile {
     pub id: u32,
     direction: Direction,
@@ -108,7 +107,7 @@ impl Tile {
         }
     }
 
-    fn is_neighbors_by_location(
+    pub fn is_neighbors_by_location(
         &self,
         other: &Tile,
         location: &RelativeLocation,
@@ -127,16 +126,5 @@ impl Tile {
                 self.check_match(self.parsed.right, other.source.left, other.source.right)
             }
         }
-    }
-
-    pub fn is_neighbors(&self, other: &Tile) -> Option<(RelativeLocation, Direction)> {
-        for direction in direction::ALL {
-            if self.id != other.id
-                && let Some(location) = self.is_neighbors_by_location(&other, &direction)
-            {
-                return Some((direction, location));
-            }
-        }
-        None
     }
 }

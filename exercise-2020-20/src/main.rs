@@ -1,4 +1,4 @@
-use crate::tile::Tile;
+use crate::{grid::Point, tile::Tile};
 mod direction;
 mod tile;
 mod grid;
@@ -49,9 +49,9 @@ fn main() {
     let input = std::fs::read_to_string("input.txt").unwrap();
     let tiles = parse_tiles(&input);
 
-    for tile in tiles.iter() {
-        for other in tiles.iter() {
-            println!("{:?} {:?} {:?}", tile.id, other.id, tile.is_neighbors(&other));
-        }
-    }
+    let mut grid = grid::Grid::new(*tiles.iter().next().unwrap());
+    
+    grid.organize(&tiles, &Point::new(0, 0));
+
+    grid.print();
 }
