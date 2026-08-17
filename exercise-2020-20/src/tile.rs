@@ -70,11 +70,11 @@ impl Tile {
         self.parsed = parsed;
     }
 
-    fn check_match(
+    fn check_match_vertical(
         &self,
-        current: &String,
-        straigt: &String,
-        opposite: &String,
+        current: &str,
+        straigt: &str,
+        opposite: &str,
     ) -> Option<Direction> {
         if current == straigt {
             Some(Direction::Default)
@@ -89,24 +89,49 @@ impl Tile {
         }
     }
 
+    fn check_match_horizontal(
+        &self,
+        current: &str,
+        straigt: &str,
+        opposite: &str,
+    ) -> Option<Direction> {
+        if current == straigt {
+            Some(Direction::Default)
+        } else if *current == straigt.chars().rev().collect::<String>() {
+            Some(Direction::XFlip)
+        } else if current == opposite {
+            Some(Direction::YFlip)
+        } else if *current == opposite.chars().rev().collect::<String>() {
+            Some(Direction::XYFlip)
+        } else {
+            None
+        }
+    }
+
     pub fn is_neighbors_by_location(
         &self,
         other: &Tile,
         location: &RelativeLocation,
     ) -> Option<Direction> {
         match location {
-            RelativeLocation::Above => {
-                self.check_match(&self.parsed.bottom, &other.source.top, &other.source.bottom)
-            }
+            RelativeLocation::Above => self.check_match_vertical(
+                &self.parsed.bottom,
+                &other.source.top,
+                &other.source.bottom,
+            ),
             RelativeLocation::Below => {
-                self.check_match(&self.parsed.top, &other.source.bottom, &other.source.top)
+                self.check_match_vertical(&self.parsed.top, &other.source.bottom, &other.source.top)
             }
-            RelativeLocation::OnLeft => {
-                self.check_match(&self.parsed.left, &other.source.right, &other.source.left)
-            }
-            RelativeLocation::OnRight => {
-                self.check_match(&self.parsed.right, &other.source.left, &other.source.right)
-            }
+            RelativeLocation::OnLeft => self.check_match_horizontal(
+                &self.parsed.left,
+                &other.source.right,
+                &other.source.left,
+            ),
+            RelativeLocation::OnRight => self.check_match_horizontal(
+                &self.parsed.right,
+                &other.source.left,
+                &other.source.right,
+            ),
         }
     }
 }
