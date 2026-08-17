@@ -1,6 +1,7 @@
 use crate::tile::Tile;
 mod direction;
 mod tile;
+mod grid;
 
 fn parse_tiles(input: &str) -> Vec<Tile> {
     input
@@ -50,11 +51,7 @@ fn main() {
 
     for tile in tiles.iter() {
         for other in tiles.iter() {
-            for direction in direction::ALL {
-                if tile.id != other.id && let Some(location) = tile.is_neighbors(&other, &direction) {
-                    println!("{:?} {:?} {:?} {:?}", tile.id, other.id, direction, location);
-                }
-            }
+            println!("{:?} {:?} {:?}", tile.id, other.id, tile.is_neighbors(&other));
         }
     }
 }
