@@ -1,91 +1,126 @@
-#[derive(Debug)]
-pub struct Tile {
-    number: u32,
+use crate::direction::{Direction, RelativeLocation};
+
+#[derive(Debug, Hash, Copy, Clone)]
+struct Card {
     top: u16,
     bottom: u16,
     left: u16,
     right: u16,
 }
 
-#[derive(Debug)]
-pub enum Location {
-    Above,
-    Below,
-    OnLeft,
-    OnRight,
-}
-
-fn convert(line: String) -> Result<u16, String> {
-    if line.len() > 16 {
-        Err("line length must be smaller than 16".to_string())
-    } else {
-        let mut number = 0;
-        for (i, character) in line.char_indices() {
-            match character {
-                '.' => {}
-                '#' => {
-                    number |= 1 << i;
-                }
-                _ => return Err("invalid character found".to_string()),
-            }
-        }
-        Ok(number)
-    }
-}
-
-fn is_match(a: u16, b: u16) -> bool {
-    a == b || !a == b || a == !b
-}
-
-impl Tile {
-    pub fn new(number: u32, tile: &str) -> Result<Self, String> {
-        let top = tile
-            .lines()
-            .next()
-            .ok_or_else(|| "missing top line".to_string())?
-            .to_string();
-        let top = convert(top)?;
-        let bottom = tile
-            .lines()
-            .last()
-            .ok_or_else(|| "missing bottom line".to_string())?
-            .to_string();
-        let bottom = convert(bottom)?;
-
-        let left = convert(
-            tile.lines()
-                .map(|line| line.chars().next().unwrap())
-                .collect(),
-        )?;
-
-        let right = convert(
-            tile.lines()
-                .map(|line| line.chars().last().unwrap())
-                .collect(),
-        )?;
-
-        Ok(Self {
-            number,
+impl Card {
+    fn new(top: u16, bottom: u16, left: u16, right: u16) -> Self {
+        Self {
             top,
             bottom,
             left,
             right,
+        }
+    }
+
+    fn convert(line: &str) -> Result<u16, String> {
+        if line.len() > 16 {
+            Err("line length must be smaller than 16".to_string())
+        } else {
+            let mut number = 0;
+            for (i, character) in line.char_indices() {
+                match character {
+                    '.' => {}
+                    '#' => {
+                        number |= 1 << i;
+                    }
+                    _ => return Err("invalid character found".to_string()),
+                }
+            }
+            Ok(number)
+        }
+    }
+}
+
+#[derive(Debug, Hash)]
+pub struct Tile {
+    pub id: u32,
+    direction: Direction,
+    source: Card,
+    parsed: Card,
+}
+
+impl Tile {
+    pub fn new(id: u32, top: &str, bottom: &str, left: &str, right: &str) -> Result<Self, String> {
+        let card = Card::new(
+            Card::convert(top)?,
+            Card::convert(bottom)?,
+            Card::convert(left)?,
+            Card::convert(right)?,
+        );
+        Ok(Self {
+            id,
+            direction: Direction::Default,
+            source: card,
+            parsed: card.clone(),
         })
     }
 
-    pub fn order(&self, other: &Tile) -> Option<Location> {
-        if self.number == other.number {
-            None
-        } else if is_match(self.top, other.bottom) || is_match(self.top, other.top) {
-            Some(Location::Above)
-        } else if is_match(self.bottom, other.bottom) || is_match(self.bottom, other.top) {
-            Some(Location::Below)
-        } else if is_match(self.right, other.right) || is_match(self.right, other.left) {
-            Some(Location::OnRight)
-        } else if is_match(self.left, other.right) || is_match(self.left, other.left) {
-            Some(Location::OnLeft)
+    pub fn set_direction(&mut self, direction: Direction) {
+        let parsed = match direction {
+            Direction::Default => Card::new(
+                self.source.top,
+                self.source.bottom,
+                self.source.left,
+                self.source.right,
+            ),
+            Direction::XFlip => Card::new(
+                self.source.bottom,
+                self.source.top,
+                !self.source.left,
+                !self.source.right,
+            ),
+            Direction::YFlip => Card::new(
+                !self.source.top,
+                !self.source.bottom,
+                self.source.right,
+                self.source.left,
+            ),
+            Direction::XYFlip => Card::new(
+                !self.source.bottom,
+                !self.source.top,
+                !self.source.right,
+                !self.source.left,
+            ),
+        };
+
+        self.direction = direction;
+        self.parsed = parsed;
+    }
+
+    fn check_match(&self, current: u16, straigt: u16, opposite: u16) -> Option<Direction> {
+        if current == straigt {
+            Some(Direction::Default)
+        } else if current == opposite {
+            Some(Direction::XFlip)
+        } else if current == !straigt {
+            Some(Direction::YFlip)
+        } else if current == !opposite {
+            Some(Direction::XYFlip)
         } else {
             None
+        }
+    }
+
+    pub fn is_neighbors(&self, other: &Tile, location: &RelativeLocation) -> Option<Direction> {
+        match location {
+            RelativeLocation::Above => {
+                self.check_match(self.parsed.bottom, other.source.top, other.source.bottom)
+            }
+            RelativeLocation::Below => {
+                self.check_match(self.parsed.top, other.source.bottom, other.source.top)
+            }
+            RelativeLocation::OnLeft => {
+                self.check_match(self.parsed.left, other.source.right, other.source.left)
+            }
+            RelativeLocation::OnRight => {
+                self.check_match(self.parsed.right, other.source.left, other.source.right)
+            }
         }
     }
 }
