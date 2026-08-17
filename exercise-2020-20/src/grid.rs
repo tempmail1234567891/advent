@@ -33,15 +33,18 @@ impl Grid {
             board: HashMap::from([(Point { x: 0, y: 0 }, tile)]),
         }
     }
-    pub fn organize(&mut self, tiles: &Vec<Tile>, source: &Point) {
-        for tile in tiles.iter() {
+    pub fn organize(&mut self, tiles: Vec<Tile>, source: &Point) {
+        for (i, _) in tiles.iter().enumerate() {
+            let mut remaining = tiles.clone();
+            let tile = remaining.remove(i);
+
             if let Some(new_point) = self.insert_around(tile, source) {
-                self.organize(tiles, &new_point);
+                self.organize(remaining, &new_point);
             }
         }
     }
-    
-    pub fn insert_around(&mut self, other: &Tile, source: &Point) -> Option<Point> {
+
+    pub fn insert_around(&mut self, mut other: Tile, source: &Point) -> Option<Point> {
         if self.board.contains_key(&source) {
             let tile = self.board.get(source).unwrap();
             if tile.id == other.id {
@@ -49,11 +52,10 @@ impl Grid {
             }
             for (next, location) in source.near() {
                 if !self.board.contains_key(&next)
-                    && let Some(direction) = tile.is_neighbors_by_location(other, &location)
+                    && let Some(direction) = tile.is_neighbors_by_location(&other, &location)
                 {
-                    let mut parsed = *other;
-                    parsed.set_direction(direction);
-                    self.board.insert(next, parsed);
+                    other.set_direction(direction);
+                    self.board.insert(next, other);
                     return Some(next);
                 }
             }

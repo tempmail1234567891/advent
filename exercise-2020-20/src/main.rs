@@ -1,7 +1,7 @@
 use crate::{grid::Point, tile::Tile};
 mod direction;
-mod tile;
 mod grid;
+mod tile;
 
 fn parse_tiles(input: &str) -> Vec<Tile> {
     input
@@ -24,12 +24,14 @@ fn parse_tiles(input: &str) -> Vec<Tile> {
             let top = tile
                 .lines()
                 .next()
-                .ok_or_else(|| "missing top line".to_string()).unwrap();
+                .ok_or_else(|| "missing top line".to_string())
+                .unwrap();
 
             let bottom = tile
                 .lines()
                 .last()
-                .ok_or_else(|| "missing bottom line".to_string()).unwrap();
+                .ok_or_else(|| "missing bottom line".to_string())
+                .unwrap();
 
             let left = tile
                 .lines()
@@ -47,11 +49,14 @@ fn parse_tiles(input: &str) -> Vec<Tile> {
 }
 fn main() {
     let input = std::fs::read_to_string("input.txt").unwrap();
-    let tiles = parse_tiles(&input);
+    let mut iter = parse_tiles(&input).into_iter();
 
-    let mut grid = grid::Grid::new(*tiles.iter().next().unwrap());
-    
-    grid.organize(&tiles, &Point::new(0, 0));
+    let first = iter.next().unwrap();
+    let rest: Vec<Tile> = iter.collect();
+
+    let mut grid = grid::Grid::new(first);
+
+    grid.organize(rest, &Point::new(0, 0));
 
     grid.print();
 }
