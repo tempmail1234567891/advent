@@ -54,9 +54,9 @@ fn main() {
     let first = iter.next().unwrap();
     let rest: Vec<Tile> = iter.collect();
 
-    let mut grid = grid::Grid::new(first);
+    let mut grid = grid::Grid::new(first, rest);
 
-    grid.organize(rest, &Point::new(0, 0));
+    grid.organize(&Point::new(0, 0));
 
     grid.print();
 }

@@ -1,4 +1,7 @@
-use crate::{direction::RelativeLocation, tile::Tile};
+use crate::{
+    direction::{Direction, RelativeLocation},
+    tile::Tile,
+};
 use std::collections::HashMap;
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Hash)]
@@ -25,26 +28,37 @@ impl Point {
 #[derive(Debug)]
 pub struct Grid {
     board: HashMap<Point, Tile>,
+    tiles: Vec<Tile>,
 }
 
 impl Grid {
-    pub fn new(tile: Tile) -> Self {
+    pub fn new(tile: Tile, tiles: Vec<Tile>) -> Self {
         Self {
             board: HashMap::from([(Point { x: 0, y: 0 }, tile)]),
+            tiles,
         }
     }
-    pub fn organize(&mut self, tiles: Vec<Tile>, source: &Point) {
-        for (i, _) in tiles.iter().enumerate() {
-            let mut remaining = tiles.clone();
-            let tile = remaining.remove(i);
+    pub fn organize(&mut self, source: &Point) {
+        let mut found = vec![];
 
-            if let Some(new_point) = self.insert_around(tile, source) {
-                self.organize(remaining, &new_point);
+        for tile in self.tiles.iter() {
+            if let Some((new_point, direction)) = self.check_insert(tile, source) {
+                found.push((tile.id, new_point, direction));
+            }
+        }
+
+        for (id, point, direction) in found {
+            if let Some(index) = self.tiles.iter().position(|tile| tile.id == id) {
+                let mut tile = self.tiles.remove(index);
+
+                tile.set_direction(direction);
+                self.board.insert(point, tile);
+                self.organize(&point);
             }
         }
     }
 
-    pub fn insert_around(&mut self, mut other: Tile, source: &Point) -> Option<Point> {
+    pub fn check_insert(&self, other: &Tile, source: &Point) -> Option<(Point, Direction)> {
         if self.board.contains_key(&source) {
             let tile = self.board.get(source).unwrap();
             if tile.id == other.id {
@@ -52,11 +66,9 @@ impl Grid {
             }
             for (next, location) in source.near() {
                 if !self.board.contains_key(&next)
-                    && let Some(direction) = tile.is_neighbors_by_location(&other, &location)
+                    && let Some(direction) = tile.is_neighbors_by_location(other, &location)
                 {
-                    other.set_direction(direction);
-                    self.board.insert(next, other);
-                    return Some(next);
+                    return Some((next, direction));
                 }
             }
         }
