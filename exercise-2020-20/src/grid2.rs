@@ -11,15 +11,6 @@ impl Point {
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
     }
-
-    fn near(&self) -> Vec<Point> {
-        vec![
-            Point::new(self.x - 1, self.y),
-            Point::new(self.x + 1, self.y),
-            Point::new(self.x, self.y - 1),
-            Point::new(self.x, self.y + 1),
-        ]
-    }
 }
 
 #[derive(Debug)]
@@ -30,7 +21,7 @@ pub struct Grid {
 }
 
 impl Grid {
-       pub fn new(tiles: Vec<Tile>, size: i32) -> Self {
+    pub fn new(tiles: Vec<Tile>, size: i32) -> Self {
         Self {
             board: HashMap::new(),
             size,
@@ -38,25 +29,25 @@ impl Grid {
         }
     }
 
-    pub fn solve(&mut self, target: &Point) -> bool {
+    pub fn solve(&mut self) -> bool {
         if self.tiles.len() == 0 {
             return true;
         }
-        
-        for tile in self.tiles.clone() {
-            if self.does_fit(&tile, target) {
-                self.tiles.retain(|t| t.id != tile.id);
-                self.board.insert((target.x, target.y), tile.clone());
 
-                for point in target.near() {
-                    // if self.validate_point(&point){
-                        if self.solve(&point){
-                            return true;
-                        }
-                    // }
+        let index = self.board.len() as i32;
+        let x = index % self.size;
+        let y = index / self.size;
+
+        for tile in self.tiles.clone() {
+            if self.does_fit(&tile, &Point::new(x, y)) {
+                self.tiles.retain(|t| t.id != tile.id);
+                self.board.insert((x, y), tile.clone());
+
+                if self.solve() {
+                    return true;
                 }
 
-                self.board.remove(&(target.x, target.y));
+                self.board.remove(&(x, y));
                 self.tiles.append(&mut tile.orientations());
             }
         }
@@ -89,36 +80,9 @@ impl Grid {
         }
     }
 
-    fn board_range(&self) -> (i32, i32, i32, i32) {
-        let min_x = self.board.keys().map(|p| p.0).min().unwrap_or(0);
-        let max_x = self.board.keys().map(|p| p.0).max().unwrap_or(0);
-        let min_y = self.board.keys().map(|p| p.1).min().unwrap_or(0);
-        let max_y = self.board.keys().map(|p| p.1).max().unwrap_or(0);
-        (min_x, max_x, min_y, max_y)
-    }
-
-    fn validate_point(&self, target: &Point) -> bool {
-        let (min_x, max_x, min_y, max_y) = self.board_range();
-
-        let width = max_x - min_x + 1;
-        let height = max_y - min_y + 1;
-
-        if width == self.size && (target.x < min_x || target.x > max_x){
-            false
-        }
-        else if height == self.size && (target.y < min_y || target.y > max_y){
-            false
-        }
-        else {
-            true
-        }
-    }
-
     pub fn print(&self) {
-        let (min_x, max_x, min_y, max_y) = self.board_range();
-
-        for y in min_y..=max_y {
-            let tiles: Vec<_> = (min_x..=max_x)
+        for y in 0..self.size {
+            let tiles: Vec<_> = (0..self.size)
                 .map(|x| self.board.get(&(x, y)).map(|tile| tile.print()))
                 .collect();
 
@@ -133,7 +97,7 @@ impl Grid {
                 for tile in &tiles {
                     match tile {
                         Some(lines) => print!("{}", lines[row]),
-                        None => print!("{}", " ".repeat(10)), // tile width
+                        None => print!("{}", " ".repeat(10)),
                     }
                 }
                 println!();
