@@ -1,4 +1,3 @@
-use crate::grid2::Point;
 use crate::tile2::Tile;
 mod direction;
 mod grid;
@@ -54,7 +53,7 @@ fn main() {
     let input = std::fs::read_to_string("input.txt").unwrap();
     let tiles = parse_tiles(&input);
     let length = (tiles.len() as f64).sqrt() as i32;
-    
+
     let mut grid = grid2::Grid::new(tiles, length);
 
     grid.solve();
