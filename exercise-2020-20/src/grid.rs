@@ -47,6 +47,26 @@ impl Grid {
         false
     }
 
+    pub fn calculate(&self) -> u64 {
+        let corner1 = self.board.get(&(0, 0)).map(|t| t.id).unwrap_or(0) as u64;
+        let corner2 = self
+            .board
+            .get(&(0, self.size - 1))
+            .map(|t| t.id)
+            .unwrap_or(0) as u64;
+        let corner3 = self
+            .board
+            .get(&(self.size - 1, 0))
+            .map(|t| t.id)
+            .unwrap_or(0) as u64;
+        let corner4 = self
+            .board
+            .get(&(self.size - 1, self.size - 1))
+            .map(|t| t.id)
+            .unwrap_or(0) as u64;
+        corner1 * corner2 * corner3 * corner4
+    }
+
     fn does_fit(&self, tile: &Tile, x: i32, y: i32) -> bool {
         if self.board.contains_key(&(x, y)) {
             false

@@ -55,4 +55,6 @@ fn main() {
 
     grid.solve();
     grid.print();
+
+    println!("{}", grid.calculate());
 }
