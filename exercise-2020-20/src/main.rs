@@ -1,7 +1,10 @@
-use crate::{grid::Point, tile::Tile};
+use crate::grid2::Point;
+use crate::tile2::Tile;
 mod direction;
 mod grid;
 mod tile;
+mod tile2;
+mod grid2;
 
 fn parse_tiles(input: &str) -> Vec<Tile> {
     input
@@ -43,20 +46,29 @@ fn parse_tiles(input: &str) -> Vec<Tile> {
                 .map(|line| line.chars().last().unwrap())
                 .collect::<String>();
 
-            Tile::new(number, &top, &bottom, &left, &right).ok()
+            Some(Tile::new(number, &top, &bottom, &left, &right))
         })
         .collect()
 }
 fn main() {
     let input = std::fs::read_to_string("input.txt").unwrap();
-    let mut iter = parse_tiles(&input).into_iter();
+    let tiles = parse_tiles(&input);
+    let length = (tiles.len() as f64).sqrt() as i32;
+    let tiles_x = tiles.iter().cloned().map(Tile::flip_x);
+    let tiles_y = tiles.iter().cloned().map(Tile::flip_y);
+    let tiles_xy = tiles.iter().cloned().map(Tile::flip_x).map(Tile::flip_y);
+    let tiles_rotate_r = tiles.iter().cloned().map(Tile::rotate);
+    let tiles_rotate_l = tiles.iter().cloned().map(Tile::rotate).map(Tile::rotate).map(Tile::rotate);
+    let tiles_rotate_ry = tiles.iter().cloned().map(Tile::rotate).map(Tile::flip_x);
+    let tiles_rotate_ly = tiles.iter().cloned().map(Tile::rotate).map(Tile::rotate).map(Tile::rotate).map(Tile::flip_x);
 
-    let first = iter.next().unwrap();
-    let rest: Vec<Tile> = iter.collect();
+    let tiles = tiles.iter().cloned().chain(tiles_x).chain(tiles_y).chain(tiles_xy).collect::<Vec<_>>();
+    let tiles = tiles.iter().cloned().chain(tiles_rotate_r).chain(tiles_rotate_ry).chain(tiles_rotate_l).chain(tiles_rotate_ly).collect::<Vec<_>>();
 
-    let mut grid = grid::Grid::new(first, rest);
+    // let tiles = tiles.into_iter().flat_map(Tile::orientations).collect();
+    let mut grid = grid2::Grid::new(tiles, length);
 
-    grid.organize(&Point::new(0, 0));
+    grid.solve(&Point::new(0, 0));
 
     grid.print();
 }
