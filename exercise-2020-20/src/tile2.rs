@@ -60,8 +60,8 @@ impl Tile {
     pub fn rotate(self) -> Tile {
         Tile {
             id: self.id,
-            top: self.left,
-            bottom: self.right,
+            top: !self.left,
+            bottom: !self.right,
             left: self.bottom,
             right: self.top,
         }
