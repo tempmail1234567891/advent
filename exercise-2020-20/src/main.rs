@@ -68,7 +68,7 @@ fn main() {
     // let tiles = tiles.into_iter().flat_map(Tile::orientations).collect();
     let mut grid = grid2::Grid::new(tiles, length);
 
-    grid.solve(&Point::new(0, 0));
+    grid.solve();
 
     grid.print();
 }
