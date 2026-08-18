@@ -37,18 +37,24 @@ impl Grid {
         let index = self.board.len() as i32;
         let x = index % self.size;
         let y = index / self.size;
+        let point = Point::new(x, y);
 
         for tile in self.tiles.clone() {
-            if self.does_fit(&tile, &Point::new(x, y)) {
+            for oriented in tile.clone().orientations() {
+                if !self.does_fit(&oriented, &point) {
+                    continue;
+                }
+
                 self.tiles.retain(|t| t.id != tile.id);
-                self.board.insert((x, y), tile.clone());
+
+                self.board.insert((x, y), oriented);
 
                 if self.solve() {
                     return true;
                 }
 
                 self.board.remove(&(x, y));
-                self.tiles.append(&mut tile.orientations());
+                self.tiles.push(tile.clone());
             }
         }
         false
