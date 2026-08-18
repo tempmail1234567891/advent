@@ -1,9 +1,6 @@
-use crate::tile2::Tile;
-mod direction;
-mod grid;
+use crate::tile::Tile;
 mod tile;
-mod tile2;
-mod grid2;
+mod grid;
 
 fn parse_tiles(input: &str) -> Vec<Tile> {
     input
@@ -54,7 +51,7 @@ fn main() {
     let tiles = parse_tiles(&input);
     let length = (tiles.len() as f64).sqrt() as i32;
 
-    let mut grid = grid2::Grid::new(tiles, length);
+    let mut grid = grid::Grid::new(tiles, length);
 
     grid.solve();
     grid.print();
